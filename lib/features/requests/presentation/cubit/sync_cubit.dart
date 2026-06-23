@@ -52,6 +52,11 @@ class SyncCubit extends Cubit<SyncState> {
         sync();
       }
     });
+
+    // Drain anything left from a previous session if we're already online.
+    if (online && state.pendingCount > 0) {
+      await sync();
+    }
   }
 
   /// Manually trigger a sync (also used by the banner's "sync now" action).

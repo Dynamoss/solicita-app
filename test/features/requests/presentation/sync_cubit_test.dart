@@ -48,12 +48,27 @@ void main() {
   test('init carrega contagem pendente e status de conexão', () async {
     when(() => repository.pendingCount()).thenAnswer((_) async => const Right(3));
     when(() => network.isConnected).thenAnswer((_) async => true);
+    when(() => syncPending()).thenAnswer((_) async => const Right(3));
 
     final cubit = build();
     await cubit.init();
 
     expect(cubit.state.pendingCount, 3);
     expect(cubit.state.isOnline, isTrue);
+    await cubit.close();
+  });
+
+  test('init dispara sincronização quando já online com fila pendente',
+      () async {
+    when(() => repository.pendingCount()).thenAnswer((_) async => const Right(2));
+    when(() => network.isConnected).thenAnswer((_) async => true);
+    when(() => syncPending()).thenAnswer((_) async => const Right(2));
+
+    final cubit = build();
+    await cubit.init();
+
+    verify(() => syncPending()).called(1);
+    expect(cubit.state.lastSyncedCount, 2);
     await cubit.close();
   });
 
