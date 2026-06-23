@@ -1,0 +1,268 @@
+{
+  "requests": [
+    {
+      "id": "1001",
+      "title": "Não consigo acessar o portal do paciente",
+      "description": "Ao tentar fazer login no portal aparece a mensagem de senha inválida, mesmo após redefinir a senha pelo e-mail.",
+      "status": "open",
+      "priority": "high",
+      "requester": "Ana Beatriz",
+      "category": "Acesso/Login",
+      "createdAt": "2026-06-22T13:40:00.000Z",
+      "updatedAt": "2026-06-22T13:40:00.000Z"
+    },
+    {
+      "id": "1002",
+      "title": "Impressora da recepção sem conexão",
+      "description": "A impressora da recepção parou de imprimir as guias. O LED de rede está apagado.",
+      "status": "in_progress",
+      "priority": "medium",
+      "requester": "Carlos Eduardo",
+      "category": "Hardware",
+      "createdAt": "2026-06-22T11:15:00.000Z",
+      "updatedAt": "2026-06-22T12:00:00.000Z"
+    },
+    {
+      "id": "1003",
+      "title": "Erro ao gerar boleto de mensalidade",
+      "description": "O sistema financeiro retorna erro 500 ao emitir o boleto da mensalidade dos convênios.",
+      "status": "open",
+      "priority": "high",
+      "requester": "Daniela Souza",
+      "category": "Financeiro",
+      "createdAt": "2026-06-22T09:05:00.000Z",
+      "updatedAt": "2026-06-22T09:05:00.000Z"
+    },
+    {
+      "id": "1004",
+      "title": "Lentidão na rede do consultório 3",
+      "description": "A internet do consultório 3 está muito lenta desde ontem, atrapalhando o agendamento de consultas.",
+      "status": "in_progress",
+      "priority": "medium",
+      "requester": "Eduardo Lima",
+      "category": "Infraestrutura",
+      "createdAt": "2026-06-21T16:20:00.000Z",
+      "updatedAt": "2026-06-22T08:10:00.000Z"
+    },
+    {
+      "id": "1005",
+      "title": "Aplicativo trava ao abrir o prontuário",
+      "description": "Ao abrir o prontuário eletrônico de um paciente, o aplicativo fecha sozinho. Acontece em vários dispositivos.",
+      "status": "open",
+      "priority": "high",
+      "requester": "Fernanda Rocha",
+      "category": "Software",
+      "createdAt": "2026-06-21T14:00:00.000Z",
+      "updatedAt": "2026-06-21T14:00:00.000Z"
+    },
+    {
+      "id": "1006",
+      "title": "Solicitação de novo monitor",
+      "description": "Preciso de um segundo monitor para a estação de trabalho do faturamento.",
+      "status": "resolved",
+      "priority": "low",
+      "requester": "Gabriel Martins",
+      "category": "Hardware",
+      "createdAt": "2026-06-20T10:30:00.000Z",
+      "updatedAt": "2026-06-21T09:45:00.000Z"
+    },
+    {
+      "id": "1007",
+      "title": "Reembolso de exame não processado",
+      "description": "O reembolso do exame laboratorial do paciente foi solicitado há 10 dias e ainda não foi processado.",
+      "status": "in_progress",
+      "priority": "medium",
+      "requester": "Helena Castro",
+      "category": "Financeiro",
+      "createdAt": "2026-06-20T08:50:00.000Z",
+      "updatedAt": "2026-06-21T11:20:00.000Z"
+    },
+    {
+      "id": "1008",
+      "title": "VPN não conecta no home office",
+      "description": "Não consigo conectar à VPN trabalhando de casa. A conexão expira no momento da autenticação.",
+      "status": "open",
+      "priority": "high",
+      "requester": "Igor Wallace",
+      "category": "Infraestrutura",
+      "createdAt": "2026-06-19T19:10:00.000Z",
+      "updatedAt": "2026-06-19T19:10:00.000Z"
+    },
+    {
+      "id": "1009",
+      "title": "Usuário bloqueado após tentativas",
+      "description": "Minha conta foi bloqueada após algumas tentativas de login e preciso de desbloqueio.",
+      "status": "resolved",
+      "priority": "medium",
+      "requester": "Joana Prado",
+      "category": "Acesso/Login",
+      "createdAt": "2026-06-19T13:25:00.000Z",
+      "updatedAt": "2026-06-20T10:00:00.000Z"
+    },
+    {
+      "id": "1010",
+      "title": "Atualização do sistema de agendamento",
+      "description": "Solicito a atualização do módulo de agendamento para a versão mais recente disponível.",
+      "status": "cancelled",
+      "priority": "low",
+      "requester": "Kléber Nunes",
+      "category": "Software",
+      "createdAt": "2026-06-18T15:40:00.000Z",
+      "updatedAt": "2026-06-19T09:30:00.000Z"
+    },
+    {
+      "id": "1011",
+      "title": "Teclado com teclas falhando",
+      "description": "Algumas teclas do teclado da estação de enfermagem não respondem. Preciso de substituição.",
+      "status": "open",
+      "priority": "low",
+      "requester": "Larissa Gomes",
+      "category": "Hardware",
+      "createdAt": "2026-06-18T10:05:00.000Z",
+      "updatedAt": "2026-06-18T10:05:00.000Z"
+    },
+    {
+      "id": "1012",
+      "title": "Falha na sincronização de exames",
+      "description": "Os resultados de exames do laboratório não estão sincronizando com o prontuário do paciente.",
+      "status": "in_progress",
+      "priority": "high",
+      "requester": "Marcelo Dias",
+      "category": "Software",
+      "createdAt": "2026-06-17T17:55:00.000Z",
+      "updatedAt": "2026-06-18T08:15:00.000Z"
+    },
+    {
+      "id": "1013",
+      "title": "Nota fiscal com valor incorreto",
+      "description": "A nota fiscal emitida para o convênio saiu com valor divergente do procedimento realizado.",
+      "status": "open",
+      "priority": "medium",
+      "requester": "Natália Ferreira",
+      "category": "Financeiro",
+      "createdAt": "2026-06-17T09:35:00.000Z",
+      "updatedAt": "2026-06-17T09:35:00.000Z"
+    },
+    {
+      "id": "1014",
+      "title": "Wi-Fi instável na ala pediátrica",
+      "description": "O Wi-Fi da ala pediátrica cai constantemente, dificultando o uso dos tablets pelos enfermeiros.",
+      "status": "in_progress",
+      "priority": "medium",
+      "requester": "Otávio Ribeiro",
+      "category": "Infraestrutura",
+      "createdAt": "2026-06-16T14:20:00.000Z",
+      "updatedAt": "2026-06-17T10:50:00.000Z"
+    },
+    {
+      "id": "1015",
+      "title": "Reagendar consulta de retorno",
+      "description": "Preciso reagendar a consulta de retorno do paciente para a próxima semana.",
+      "status": "resolved",
+      "priority": "low",
+      "requester": "Patrícia Alves",
+      "category": "Atendimento",
+      "createdAt": "2026-06-16T08:10:00.000Z",
+      "updatedAt": "2026-06-16T16:30:00.000Z"
+    },
+    {
+      "id": "1016",
+      "title": "Celular corporativo não liga",
+      "description": "O celular corporativo do plantão não liga mesmo após carregar a noite toda.",
+      "status": "open",
+      "priority": "medium",
+      "requester": "Quésia Barbosa",
+      "category": "Hardware",
+      "createdAt": "2026-06-15T20:00:00.000Z",
+      "updatedAt": "2026-06-15T20:00:00.000Z"
+    },
+    {
+      "id": "1017",
+      "title": "Senha do e-mail expirada",
+      "description": "Minha senha de e-mail expirou e o sistema não permite criar uma nova senha.",
+      "status": "resolved",
+      "priority": "low",
+      "requester": "Rafael Teixeira",
+      "category": "Acesso/Login",
+      "createdAt": "2026-06-15T11:45:00.000Z",
+      "updatedAt": "2026-06-15T15:20:00.000Z"
+    },
+    {
+      "id": "1018",
+      "title": "Erro de impressão de receituário",
+      "description": "Ao imprimir o receituário, o sistema apresenta erro e a impressão sai cortada.",
+      "status": "in_progress",
+      "priority": "high",
+      "requester": "Sabrina Moraes",
+      "category": "Software",
+      "createdAt": "2026-06-14T13:30:00.000Z",
+      "updatedAt": "2026-06-15T09:00:00.000Z"
+    },
+    {
+      "id": "1019",
+      "title": "Solicitação de acesso ao módulo financeiro",
+      "description": "Preciso de permissão de acesso ao módulo financeiro para conferência de pagamentos.",
+      "status": "open",
+      "priority": "medium",
+      "requester": "Thiago Cardoso",
+      "category": "Acesso/Login",
+      "createdAt": "2026-06-14T08:25:00.000Z",
+      "updatedAt": "2026-06-14T08:25:00.000Z"
+    },
+    {
+      "id": "1020",
+      "title": "Computador da farmácia muito lento",
+      "description": "O computador da farmácia está extremamente lento ao abrir o sistema de dispensação.",
+      "status": "open",
+      "priority": "medium",
+      "requester": "Ursula Pinto",
+      "category": "Hardware",
+      "createdAt": "2026-06-13T16:15:00.000Z",
+      "updatedAt": "2026-06-13T16:15:00.000Z"
+    },
+    {
+      "id": "1021",
+      "title": "Dúvida sobre cobrança duplicada",
+      "description": "Houve uma cobrança duplicada na fatura do convênio e gostaria de esclarecimento.",
+      "status": "resolved",
+      "priority": "low",
+      "requester": "Vinícius Araújo",
+      "category": "Financeiro",
+      "createdAt": "2026-06-13T09:40:00.000Z",
+      "updatedAt": "2026-06-14T10:10:00.000Z"
+    },
+    {
+      "id": "1022",
+      "title": "Servidor de arquivos indisponível",
+      "description": "O servidor de arquivos compartilhados está fora do ar e ninguém acessa os documentos.",
+      "status": "in_progress",
+      "priority": "high",
+      "requester": "Wesley Cunha",
+      "category": "Infraestrutura",
+      "createdAt": "2026-06-12T18:05:00.000Z",
+      "updatedAt": "2026-06-13T08:00:00.000Z"
+    },
+    {
+      "id": "1023",
+      "title": "Cancelar agendamento duplicado",
+      "description": "Foi criado um agendamento duplicado para o mesmo paciente e precisa ser cancelado.",
+      "status": "cancelled",
+      "priority": "low",
+      "requester": "Ximena Lopes",
+      "category": "Atendimento",
+      "createdAt": "2026-06-12T10:50:00.000Z",
+      "updatedAt": "2026-06-12T14:25:00.000Z"
+    },
+    {
+      "id": "1024",
+      "title": "Tela azul ao iniciar o computador",
+      "description": "O computador do administrativo apresenta tela azul ao iniciar e reinicia sozinho.",
+      "status": "open",
+      "priority": "high",
+      "requester": "Yuri Mendonça",
+      "category": "Software",
+      "createdAt": "2026-06-11T15:35:00.000Z",
+      "updatedAt": "2026-06-11T15:35:00.000Z"
+    }
+  ]
+}
