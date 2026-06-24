@@ -45,7 +45,7 @@ Aplicativo mobile em **Flutter** para rastreamento e gestão de chamados/solicit
 | **Diferencial — IA** (categoria/resumo, **multi-provider**) | ✅ | `features/ai` ([detalhes](#abstração-multi-provider-llmclient)) |
 | **Diferencial — Whitelabel** | ✅ | `BrandCubit` + `AppTheme` |
 | **Diferencial — Segurança** (token hardening em repouso/trânsito) | ✅ | Keychain/KeyStore + network security config ([detalhes](#-segurança-do-token-em-repouso-e-em-trânsito)) |
-| **Testes unitários (lógica + offline/sync)** | ✅ | `test/` (38 testes) |
+| **Testes unitários (lógica + offline/sync)** | ✅ | `test/` (40 testes) |
 
 ---
 
@@ -168,6 +168,7 @@ O requisito pedia **armazenamento seguro do token**. Tratei o token de sessão c
 **Em trânsito — *network security config* + ATS:**
 
 - O token vai como `Authorization: Bearer` (interceptor do `dio`). Tráfego **HTTP em texto plano é bloqueado em release**, exceto os hosts locais de desenvolvimento (`localhost`, `127.0.0.1`, `10.0.2.2`). Qualquer domínio público exige **HTTPS**.
+- **O token de sessão não vaza para terceiros:** o cliente de LLM usa um `Dio` dedicado (`DioFactory.createExternal`) **sem** o interceptor de sessão — a chamada à Anthropic/OpenAI carrega só a API key do provider, nunca o `Bearer` do usuário (coberto por teste de regressão).
 - No **iOS**, o App Transport Security é mantido, com a exceção escopada `NSAllowsLocalNetworking` (apenas redes locais).
 - A liberação ampla de cleartext existe **somente no build de debug** (`src/debug/res/xml/network_security_config.xml`), para que o avaliador rode o mock no endereço que quiser (`localhost`, `10.0.2.2` no emulador, ou o IP da LAN num device físico) sem nenhuma alteração. **Nada está vinculado a um IP fixo** — o host vem de `--dart-define=API_BASE_URL`.
 
@@ -267,7 +268,7 @@ lib/
 flutter test
 ```
 
-**38 testes**, focados na lógica de negócio e nos **fluxos críticos de offline/sync**:
+**40 testes**, focados na lógica de negócio e nos **fluxos críticos de offline/sync**:
 
 - `request_repository_impl_test.dart` — **offline-first + fila** ponta a ponta, usando **SQLite real em memória** (só o remoto e a conectividade são mockados): criação offline enfileira; online sincroniza e limpa a fila; falha mantém na fila; `syncPending` drena FIFO; leitura degrada para cache.
 - `request_local_datasource_test.dart` — paginação por `created_at` (limit/offset) e **ordem FIFO** da fila.
@@ -277,6 +278,7 @@ flutter test
 - `local_ai_service_test.dart` — categorização heurística e limites do resumo.
 - `remote_ai_service_test.dart` — orquestração provider-agnóstica: parse do JSON do LLM, normalização de categoria e **fallback** para a heurística em falha/sem-JSON (com `LlmClient` stub).
 - `llm_clients_test.dart` — cada provider (`AnthropicClient`/`OpenAiClient`) envia o protocolo correto (headers/body) e lê o formato de resposta certo, com `Dio` mockado.
+- `dio_factory_test.dart` — o `Dio` da API anexa o `Bearer` da sessão, mas o `Dio` externo (LLM) **não** — garante que o token de sessão não vaza para terceiros.
 
 > Testar o repositório contra um SQLite real (em vez de mockar o data source) foi uma decisão deliberada: dá altíssima fidelidade ao comportamento de fila/cache, que é exatamente o "coração" avaliado.
 
@@ -325,7 +327,7 @@ Conforme solicitado no enunciado, declaro o uso de IA:
   - Estruturação inicial do projeto em Clean Architecture e *scaffolding* das camadas/arquivos.
   - Implementação dos *boilerplates* repetitivos (models, data sources, cubits) sob minha orientação de arquitetura.
   - Apoio na escrita dos testes e deste README.
-- **Revisão:** todo o código foi revisado, executado e validado (`flutter analyze` sem *issues* e **38 testes passando**). As decisões de arquitetura (offline-first como *single source of truth*, fila FIFO, Cubit, `Either`) foram conduzidas por mim.
+- **Revisão:** todo o código foi revisado, executado e validado (`flutter analyze` sem *issues* e **40 testes passando**). As decisões de arquitetura (offline-first como *single source of truth*, fila FIFO, Cubit, `Either`) foram conduzidas por mim.
 
 > O diferencial de IA **dentro do app** (categoria/resumo) é descrito na seção anterior e é independente desta declaração.
 

@@ -37,12 +37,35 @@ abstract final class DioFactory {
       ),
     );
 
+    _addDebugLogging(dio);
+    return dio;
+  }
+
+  /// [Dio] for third-party calls (e.g. LLM providers), reached by absolute URL.
+  ///
+  /// Deliberately built WITHOUT the session auth interceptor: the app's bearer
+  /// token must never leak to an external service. Those APIs authenticate with
+  /// their own key, set per-request by each `LlmClient`.
+  static Dio createExternal() {
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 8),
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
+
+    _addDebugLogging(dio);
+    return dio;
+  }
+
+  static void _addDebugLogging(Dio dio) {
     if (kDebugMode) {
       dio.interceptors.add(
-        LogInterceptor(requestBody: true, responseBody: false),
+        // requestHeader: false so API keys / tokens never hit the debug log.
+        LogInterceptor(requestHeader: false, requestBody: true, responseBody: false),
       );
     }
-
-    return dio;
   }
 }

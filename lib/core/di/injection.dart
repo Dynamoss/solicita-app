@@ -107,7 +107,7 @@ Future<void> configureDependencies({
       // Real LLM when a key is configured, deterministic heuristic otherwise.
       // The provider-specific transport is chosen by [_buildLlmClient].
       () => AppConfig.hasAiKey
-          ? RemoteAiService(client: _buildLlmClient(sl()))
+          ? RemoteAiService(client: _buildLlmClient())
           : const LocalAiService(),
     )
     ..registerLazySingleton(() => SuggestRequestMeta(sl()));
@@ -159,7 +159,11 @@ Future<void> configureDependencies({
 
 /// Picks the LLM transport from [AppConfig.aiProvider]. Adding a provider is a
 /// new `LlmClient` implementation plus a case here — nothing else changes.
-LlmClient _buildLlmClient(Dio dio) {
+///
+/// Uses a dedicated external [Dio] (no session auth interceptor) so the user's
+/// bearer token never leaks to the third-party LLM endpoint.
+LlmClient _buildLlmClient() {
+  final dio = DioFactory.createExternal();
   switch (AppConfig.aiProvider.toLowerCase()) {
     case 'openai':
       return OpenAiClient(
