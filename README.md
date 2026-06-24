@@ -4,6 +4,8 @@ Aplicativo mobile em **Flutter** para rastreamento e gestão de chamados/solicit
 
 > Teste técnico — Desenvolvedor(a) Mobile Sênior.
 > O "coração do desafio" — **modo offline com fila de sincronização** — é o ponto onde concentrei o maior cuidado de design e de testes.
+>
+> **Destaques de engenharia além dos requisitos:** segurança do token endurecida **em repouso e em trânsito** ([detalhes](#-segurança-do-token-em-repouso-e-em-trânsito)) e o diferencial de IA com **abstração multi-provider** plugável (Anthropic/OpenAI) ([detalhes](#abstração-multi-provider-llmclient)).
 
 ---
 
@@ -40,8 +42,9 @@ Aplicativo mobile em **Flutter** para rastreamento e gestão de chamados/solicit
 | **Fila local de sincronização** | ✅ | tabela `sync_queue` + `RequestRepositoryImpl` |
 | **Sincronização automática ao reconectar** | ✅ | `SyncCubit` + `connectivity_plus` |
 | **Tratamento de estados (loading / erro / vazio)** | ✅ | `state_views.dart` |
-| **Diferencial — IA** (categoria/resumo) | ✅ | `features/ai` |
+| **Diferencial — IA** (categoria/resumo, **multi-provider**) | ✅ | `features/ai` ([detalhes](#abstração-multi-provider-llmclient)) |
 | **Diferencial — Whitelabel** | ✅ | `BrandCubit` + `AppTheme` |
+| **Diferencial — Segurança** (token hardening em repouso/trânsito) | ✅ | Keychain/KeyStore + network security config ([detalhes](#-segurança-do-token-em-repouso-e-em-trânsito)) |
 | **Testes unitários (lógica + offline/sync)** | ✅ | `test/` (38 testes) |
 
 ---
