@@ -42,7 +42,7 @@ Aplicativo mobile em **Flutter** para rastreamento e gestão de chamados/solicit
 | **Tratamento de estados (loading / erro / vazio)** | ✅ | `state_views.dart` |
 | **Diferencial — IA** (categoria/resumo) | ✅ | `features/ai` |
 | **Diferencial — Whitelabel** | ✅ | `BrandCubit` + `AppTheme` |
-| **Testes unitários (lógica + offline/sync)** | ✅ | `test/` (29 testes) |
+| **Testes unitários (lógica + offline/sync)** | ✅ | `test/` (38 testes) |
 
 ---
 
@@ -88,12 +88,28 @@ Os campos já vêm preenchidos com `demo@cuidar.com` / `123456`.
 ### 3) (Opcional) Ativar a IA real
 
 Sem chave, a sugestão de categoria/resumo funciona via heurística on-device.
-Para usar um LLM real (Anthropic), passe a chave:
+Para usar um LLM real, passe a chave. O provider é **plugável** (`AI_PROVIDER`,
+default `anthropic`):
+
 ```bash
+# Anthropic (default)
 flutter run \
   --dart-define=API_BASE_URL=http://10.0.2.2:3000 \
   --dart-define=AI_API_KEY=sk-ant-...
+
+# OpenAI (ou um gateway compatível)
+flutter run \
+  --dart-define=API_BASE_URL=http://10.0.2.2:3000 \
+  --dart-define=AI_PROVIDER=openai \
+  --dart-define=AI_API_KEY=sk-...
 ```
+
+| `--dart-define` | Default | Para quê |
+|---|---|---|
+| `AI_PROVIDER` | `anthropic` | `anthropic` ou `openai` (cobre gateways compatíveis) |
+| `AI_API_KEY` | *(vazio)* | Chave; vazia → heurística on-device |
+| `AI_BASE_URL` | *(default do provider)* | Endpoint próprio/proxy |
+| `AI_MODEL` | *(default do provider)* | Modelo a usar |
 
 ### 4) Testar o modo offline (roteiro sugerido)
 
@@ -237,6 +253,7 @@ lib/
     │   ├── domain            #   entidades, contratos, use cases
     │   └── presentation      #   cubits (lista, detalhe, criação, sync) + UI
     └── ai/                   # diferencial IA (porta + impl real/fallback)
+        └── data/llm/         #   LlmClient + AnthropicClient / OpenAiClient
 ```
 
 ---
@@ -247,7 +264,7 @@ lib/
 flutter test
 ```
 
-**29 testes**, focados na lógica de negócio e nos **fluxos críticos de offline/sync**:
+**38 testes**, focados na lógica de negócio e nos **fluxos críticos de offline/sync**:
 
 - `request_repository_impl_test.dart` — **offline-first + fila** ponta a ponta, usando **SQLite real em memória** (só o remoto e a conectividade são mockados): criação offline enfileira; online sincroniza e limpa a fila; falha mantém na fila; `syncPending` drena FIFO; leitura degrada para cache.
 - `request_local_datasource_test.dart` — paginação por `created_at` (limit/offset) e **ordem FIFO** da fila.
@@ -255,6 +272,8 @@ flutter test
 - `requests_list_cubit_test.dart` — load, erro, `loadMore` (append sem duplicar id), guarda de "não há mais páginas".
 - `auth_repository_impl_test.dart` — login persiste o token; credenciais inválidas viram `AuthFailure`; logout limpa o storage.
 - `local_ai_service_test.dart` — categorização heurística e limites do resumo.
+- `remote_ai_service_test.dart` — orquestração provider-agnóstica: parse do JSON do LLM, normalização de categoria e **fallback** para a heurística em falha/sem-JSON (com `LlmClient` stub).
+- `llm_clients_test.dart` — cada provider (`AnthropicClient`/`OpenAiClient`) envia o protocolo correto (headers/body) e lê o formato de resposta certo, com `Dio` mockado.
 
 > Testar o repositório contra um SQLite real (em vez de mockar o data source) foi uma decisão deliberada: dá altíssima fidelidade ao comportamento de fila/cache, que é exatamente o "coração" avaliado.
 
@@ -273,10 +292,24 @@ A marca inicial também pode vir por build: `--dart-define=BRAND=corporate`.
 Na criação de uma solicitação, o botão **"Sugerir categoria/resumo com IA"** analisa a descrição e preenche a categoria + um resumo.
 
 Arquitetura plugável (`features/ai`): a porta de domínio `AiService` tem duas implementações:
-- **`RemoteAiService`** — chama um LLM (Anthropic Messages API) quando `AI_API_KEY` está configurada;
+- **`RemoteAiService`** — chama um LLM quando `AI_API_KEY` está configurada;
 - **`LocalAiService`** — heurística determinística on-device (palavras-chave + resumo extrativo).
 
 O `RemoteAiService` **encapsula** o fallback: se não há chave, a rede falha ou a resposta não faz parse, ele degrada **transparentemente** para a heurística (a UI sinaliza "modo offline"). Assim o diferencial é robusto na avaliação mesmo **sem** chave.
+
+#### Abstração multi-provider (`LlmClient`)
+
+O `RemoteAiService` é **agnóstico de provider**: ele cuida só da *orquestração* (montar o prompt, extrair o JSON, validar a categoria, fazer fallback) e delega o *transporte* a um `LlmClient`:
+
+```
+RemoteAiService ──▶ LlmClient (port)
+                       ├── AnthropicClient   (x-api-key, content[0].text)
+                       └── OpenAiClient       (Bearer, choices[0].message.content)
+```
+
+Cada `LlmClient` encapsula o "formato do fio" do seu provider — headers, corpo da requisição e parsing da resposta. **Adicionar um provider** (Gemini, Ollama, um gateway interno) é uma nova implementação de `LlmClient` + um `case` em `_buildLlmClient` (`core/di/injection.dart`); nada acima muda. A seleção é feita por `AI_PROVIDER` na composição (DI), mantendo o mesmo princípio de inversão de dependência do resto do app.
+
+> Os dois clients têm testes que verificam o protocolo correto (headers/body/parsing) com `Dio` mockado, e o `RemoteAiService` é testado com um `LlmClient` *stub* — provando a orquestração e o fallback sem rede real.
 
 ---
 
@@ -289,7 +322,7 @@ Conforme solicitado no enunciado, declaro o uso de IA:
   - Estruturação inicial do projeto em Clean Architecture e *scaffolding* das camadas/arquivos.
   - Implementação dos *boilerplates* repetitivos (models, data sources, cubits) sob minha orientação de arquitetura.
   - Apoio na escrita dos testes e deste README.
-- **Revisão:** todo o código foi revisado, executado e validado (`flutter analyze` sem *issues* e **29 testes passando**). As decisões de arquitetura (offline-first como *single source of truth*, fila FIFO, Cubit, `Either`) foram conduzidas por mim.
+- **Revisão:** todo o código foi revisado, executado e validado (`flutter analyze` sem *issues* e **38 testes passando**). As decisões de arquitetura (offline-first como *single source of truth*, fila FIFO, Cubit, `Either`) foram conduzidas por mim.
 
 > O diferencial de IA **dentro do app** (categoria/resumo) é descrito na seção anterior e é independente desta declaração.
 

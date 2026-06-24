@@ -23,19 +23,26 @@ class AppConfig {
     defaultValue: 'http://localhost:3000',
   );
 
+  /// LLM provider used when [aiApiKey] is set. Supported: `anthropic` (default)
+  /// and `openai` (also covers OpenAI-compatible gateways). Selects which
+  /// `LlmClient` transport is wired in `core/di/injection.dart`.
+  static const String aiProvider = String.fromEnvironment(
+    'AI_PROVIDER',
+    defaultValue: 'anthropic',
+  );
+
   /// API key for the optional LLM provider. When empty, the app transparently
   /// falls back to a deterministic on-device suggestion engine.
   static const String aiApiKey = String.fromEnvironment('AI_API_KEY');
 
-  static const String aiBaseUrl = String.fromEnvironment(
-    'AI_BASE_URL',
-    defaultValue: 'https://api.anthropic.com/v1/messages',
-  );
+  /// Endpoint override. When empty, each `LlmClient` uses its provider default
+  /// (e.g. Anthropic Messages or OpenAI Chat Completions). Set this to point at
+  /// a self-hosted or proxy gateway.
+  static const String aiBaseUrl = String.fromEnvironment('AI_BASE_URL');
 
-  static const String aiModel = String.fromEnvironment(
-    'AI_MODEL',
-    defaultValue: 'claude-haiku-4-5',
-  );
+  /// Model override. When empty, each `LlmClient` uses a sensible provider
+  /// default.
+  static const String aiModel = String.fromEnvironment('AI_MODEL');
 
   /// Initial whitelabel brand id (see `Brands`). Can also be changed at runtime
   /// from the UI; this is only the default on first launch.

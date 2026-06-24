@@ -5,6 +5,9 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../features/ai/data/llm/anthropic_client.dart';
+import '../../features/ai/data/llm/llm_client.dart';
+import '../../features/ai/data/llm/openai_client.dart';
 import '../../features/ai/data/local_ai_service.dart';
 import '../../features/ai/data/remote_ai_service.dart';
 import '../../features/ai/domain/ai_service.dart';
@@ -102,8 +105,9 @@ Future<void> configureDependencies({
   sl
     ..registerLazySingleton<AiService>(
       // Real LLM when a key is configured, deterministic heuristic otherwise.
+      // The provider-specific transport is chosen by [_buildLlmClient].
       () => AppConfig.hasAiKey
-          ? RemoteAiService(dio: sl())
+          ? RemoteAiService(client: _buildLlmClient(sl()))
           : const LocalAiService(),
     )
     ..registerLazySingleton(() => SuggestRequestMeta(sl()));
@@ -151,4 +155,26 @@ Future<void> configureDependencies({
     ..registerFactory(
       () => CreateRequestCubit(createRequest: sl(), suggestRequestMeta: sl()),
     );
+}
+
+/// Picks the LLM transport from [AppConfig.aiProvider]. Adding a provider is a
+/// new `LlmClient` implementation plus a case here — nothing else changes.
+LlmClient _buildLlmClient(Dio dio) {
+  switch (AppConfig.aiProvider.toLowerCase()) {
+    case 'openai':
+      return OpenAiClient(
+        dio: dio,
+        apiKey: AppConfig.aiApiKey,
+        baseUrl: AppConfig.aiBaseUrl,
+        model: AppConfig.aiModel,
+      );
+    case 'anthropic':
+    default:
+      return AnthropicClient(
+        dio: dio,
+        apiKey: AppConfig.aiApiKey,
+        baseUrl: AppConfig.aiBaseUrl,
+        model: AppConfig.aiModel,
+      );
+  }
 }

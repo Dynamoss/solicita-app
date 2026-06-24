@@ -1,28 +1,28 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 
-import '../../../core/config/app_config.dart';
 import '../../../core/utils/typedefs.dart';
 import '../domain/ai_service.dart';
 import '../domain/entities/ai_suggestion.dart';
+import 'llm/llm_client.dart';
 import 'local_ai_service.dart';
 
-/// LLM-backed implementation (Anthropic Messages API).
+/// LLM-backed implementation, provider-agnostic.
 ///
-/// It wraps a [LocalAiService] fallback: if the key is missing, the network
-/// fails, or the response can't be parsed, it transparently returns the
-/// heuristic suggestion. This keeps the differential robust for evaluation
-/// without requiring a real key.
+/// It owns the *orchestration* — prompt building, JSON extraction and category
+/// validation — and delegates the *transport* to an [LlmClient] (Anthropic,
+/// OpenAI, or any compatible gateway). A [LocalAiService] fallback keeps the
+/// differential robust: if the network fails or the response can't be parsed,
+/// it transparently returns the heuristic suggestion.
 class RemoteAiService implements AiService {
   RemoteAiService({
-    required Dio dio,
+    required LlmClient client,
     LocalAiService fallback = const LocalAiService(),
-  })  : _dio = dio,
+  })  : _client = client,
         _fallback = fallback;
 
-  final Dio _dio;
+  final LlmClient _client;
   final LocalAiService _fallback;
 
   static const _categories = [
@@ -40,30 +40,10 @@ class RemoteAiService implements AiService {
     if (description.trim().isEmpty) {
       return _fallback.suggest(description);
     }
-    if (!AppConfig.hasAiKey) {
-      return _fallback.suggest(description);
-    }
 
     try {
-      final response = await _dio.post<Map<String, dynamic>>(
-        AppConfig.aiBaseUrl,
-        options: Options(
-          headers: {
-            'x-api-key': AppConfig.aiApiKey,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
-          },
-        ),
-        data: {
-          'model': AppConfig.aiModel,
-          'max_tokens': 256,
-          'messages': [
-            {'role': 'user', 'content': _prompt(description)},
-          ],
-        },
-      );
-
-      final suggestion = _parse(response.data);
+      final text = await _client.complete(_prompt(description));
+      final suggestion = _parse(text);
       return suggestion != null ? Right(suggestion) : _fallback.suggest(description);
     } catch (_) {
       // Network/auth/parse failure → degrade gracefully.
@@ -77,11 +57,7 @@ Responda APENAS com um JSON no formato {"category": "<categoria>", "summary": "<
 Descrição do chamado: "$description"
 ''';
 
-  AiSuggestion? _parse(Map<String, dynamic>? data) {
-    final content = (data?['content'] as List?)?.firstOrNull;
-    final text = (content as Map?)?['text'] as String?;
-    if (text == null) return null;
-
+  AiSuggestion? _parse(String text) {
     final match = RegExp(r'\{.*\}', dotAll: true).firstMatch(text);
     if (match == null) return null;
 
