@@ -4,6 +4,15 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<!-- App Transport Security: HTTPS is enforced for all public domains. The
+	     only relaxation is NSAllowsLocalNetworking, a scoped exception that lets
+	     the app reach the json-server mock over HTTP on local addresses
+	     (localhost / LAN). It does NOT permit cleartext to any real domain. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

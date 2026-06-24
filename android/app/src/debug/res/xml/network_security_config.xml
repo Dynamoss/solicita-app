@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  DEBUG-only configuration (used by `flutter run`).
+
+  Allows cleartext to ANY host so the evaluator can run the mock on their own
+  machine and point API_BASE_URL at whatever address fits their setup:
+    - http://localhost:3000        (desktop / iOS simulator)
+    - http://10.0.2.2:3000         (Android emulator -> host loopback)
+    - http://<LAN-IP>:3000         (physical device on the same Wi-Fi)
+  This file is NOT part of the release build, which uses the locked-down
+  variant under src/main/res/xml.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

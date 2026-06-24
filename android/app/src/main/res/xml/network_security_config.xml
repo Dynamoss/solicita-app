@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  RELEASE configuration.
+
+  Cleartext (HTTP) is blocked by default. The Authorization: Bearer token must
+  never travel in the clear over a real network. The only exceptions are the
+  loopback hosts and the Android-emulator alias used to reach the json-server
+  mock during evaluation; no public/remote traffic is ever allowed in cleartext.
+
+  NOTE: the debug build (flutter run) overrides this file with a permissive
+  variant under src/debug/res/xml, so the evaluator can point API_BASE_URL at
+  their own machine's LAN IP from a physical device without any change here.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

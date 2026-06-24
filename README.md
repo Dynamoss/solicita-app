@@ -28,7 +28,7 @@ Aplicativo mobile em **Flutter** para rastreamento e gestão de chamados/solicit
 | Requisito | Status | Onde |
 |---|---|---|
 | **Login** funcional (mockado) | ✅ | `features/auth` |
-| **Armazenamento seguro do token** | ✅ | `flutter_secure_storage` (`auth_local_datasource.dart`) |
+| **Armazenamento seguro do token** | ✅ | `flutter_secure_storage` (KeyStore/Keychain) — `auth_local_datasource.dart` ([detalhes](#-segurança-do-token-em-repouso-e-em-trânsito)) |
 | **Proteção de rotas privadas** | ✅ | guarda no `go_router` (`app/router.dart`) |
 | **Listagem com filtro reativo por status** | ✅ | `StatusFilterBar` + `RequestsListCubit` |
 | **Paginação** (scroll infinito) | ✅ | `RequestsListCubit.loadMore` |
@@ -136,6 +136,22 @@ Escolhi `flutter_bloc` por ser a opção mais madura e previsível para um app c
 
 `get_it` como service locator, **sem code generation** (decisão consciente): o grafo fica explícito e legível em um único arquivo (`core/di/injection.dart`), sem mágica de build_runner. Os *Cubits* de página são `factory` (instância nova por tela); repositórios/serviços são `lazySingleton`.
 
+### 🔒 Segurança do token (em repouso e em trânsito)
+
+O requisito pedia **armazenamento seguro do token**. Tratei o token de sessão como um segredo de ponta a ponta, não só na gravação:
+
+**Em repouso — `flutter_secure_storage` (`auth_local_datasource.dart`):**
+
+- **Android:** os defaults da v10 já são fortes — dados cifrados com **AES-GCM** e a chave protegida por **RSA-OAEP-SHA256** no **Android KeyStore** (chave não exportável, presa ao hardware). O token **nunca** toca `SharedPreferences`, o SQLite ou logs de produção.
+- **Apple (iOS/macOS):** item do **Keychain** com acessibilidade `first_unlock_this_device` — o token fica **preso ao aparelho** e não é carregado para outro device em backup/restore.
+- **Backup do Android desativado** (`allowBackup="false"`, `fullBackupContent="false"`) para o blob cifrado nunca sair do dispositivo via auto-backup.
+
+**Em trânsito — *network security config* + ATS:**
+
+- O token vai como `Authorization: Bearer` (interceptor do `dio`). Tráfego **HTTP em texto plano é bloqueado em release**, exceto os hosts locais de desenvolvimento (`localhost`, `127.0.0.1`, `10.0.2.2`). Qualquer domínio público exige **HTTPS**.
+- No **iOS**, o App Transport Security é mantido, com a exceção escopada `NSAllowsLocalNetworking` (apenas redes locais).
+- A liberação ampla de cleartext existe **somente no build de debug** (`src/debug/res/xml/network_security_config.xml`), para que o avaliador rode o mock no endereço que quiser (`localhost`, `10.0.2.2` no emulador, ou o IP da LAN num device físico) sem nenhuma alteração. **Nada está vinculado a um IP fixo** — o host vem de `--dart-define=API_BASE_URL`.
+
 ---
 
 ## 💙 Estratégia offline / sincronização (o coração)
@@ -186,7 +202,7 @@ Esse fluxo é coberto por testes de integração reais (SQLite em memória) — 
 | `get_it` | DI | Explícito, sem codegen |
 | `dio` | HTTP | Interceptors (token), timeouts, tratamento de erro |
 | `sqflite` (+`_common_ffi`) | Cache + fila | SQL relacional é ideal para a fila (ordem, retry); `ffi` roda em desktop/testes em memória |
-| `flutter_secure_storage` | Token | Keychain / EncryptedSharedPreferences |
+| `flutter_secure_storage` | Token | Keychain (Apple) / Android KeyStore — AES-GCM ([detalhes](#-segurança-do-token-em-repouso-e-em-trânsito)) |
 | `connectivity_plus` | Rede | Detecta retorno da conexão p/ auto-sync |
 | `go_router` | Navegação | Rotas declarativas + **guarda de rota** via `refreshListenable` |
 | `fpdart` | `Either` | Erros como valores, no tipo |

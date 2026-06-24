@@ -51,7 +51,19 @@ Future<void> configureDependencies({
   sl
     ..registerSingleton<SharedPreferences>(prefs)
     ..registerLazySingleton<FlutterSecureStorage>(
-      () => const FlutterSecureStorage(),
+      // Android defaults (v10) are already strong: AES-GCM data + RSA-OAEP
+      // key wrapping in the KeyStore. On Apple platforms we pin the item to
+      // this device only (first_unlock_this_device) so the session token is
+      // never carried into an encrypted backup and restored onto another
+      // device.
+      () => const FlutterSecureStorage(
+        iOptions: IOSOptions(
+          accessibility: KeychainAccessibility.first_unlock_this_device,
+        ),
+        mOptions: MacOsOptions(
+          accessibility: KeychainAccessibility.first_unlock_this_device,
+        ),
+      ),
     )
     ..registerLazySingleton<Connectivity>(Connectivity.new)
     ..registerLazySingleton<AppDatabase>(
