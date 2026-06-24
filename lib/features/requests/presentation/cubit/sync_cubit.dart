@@ -48,6 +48,10 @@ class SyncCubit extends Cubit<SyncState> {
 
     _connectivitySub = _networkInfo.onConnectivityChanged.listen((online) {
       emit(state.copyWith(isOnline: online));
+      // state.pendingCount is authoritative here: the watchPendingCount
+      // subscription above keeps it current on every queue change, so by the
+      // time connectivity returns it already reflects what was enqueued while
+      // offline — no need to re-read the count from the repository.
       if (online && state.pendingCount > 0) {
         sync();
       }
